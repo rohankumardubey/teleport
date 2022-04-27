@@ -172,6 +172,22 @@ func (a *awsApp) GetEnvVars() (map[string]string, error) {
 	}, nil
 }
 
+// GetForwardProxyAddr returns local forward proxy address.
+func (a *awsApp) GetForwardProxyAddr() string {
+	if a.localForwardProxy != nil {
+		return a.localForwardProxy.GetAddr()
+	}
+	return ""
+}
+
+// GetEndpointURL returns AWS endpoint URL that clients can use.
+func (a *awsApp) GetEndpointURL() string {
+	if a.localALPNProxy != nil {
+		return "https://" + a.localALPNProxy.GetAddr()
+	}
+	return ""
+}
+
 // RunCommand executes provided command.
 func (a *awsApp) RunCommand(commandName string, commandArgs ...string) error {
 	environmentVariables, err := a.GetEnvVars()

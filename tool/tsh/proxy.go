@@ -374,7 +374,9 @@ func onProxyCommandAWS(cf *CLIConf) error {
 	}
 
 	templateData := map[string]interface{}{
-		"envVars": envVars,
+		"envVars":     envVars,
+		"address":     awsApp.GetForwardProxyAddr(),
+		"endpointURL": awsApp.GetEndpointURL(),
 	}
 
 	if len(cf.AWSCommandArgs) > 0 {
@@ -434,18 +436,21 @@ Use the following command to connect to the database:
 	// awsProxyTemplate is the message that gets printed to a user when an AWS
 	// proxy is started.
 	awsProxyTemplate = template.Must(template.New("").Parse(
-		`Started AWS proxy on {{.envVars.HTTPS_PROXY}}.
+		`Started AWS proxy on {{.address}}.
 
 Use the following credentials and HTTPS proxy setting to connect to the proxy:
 {{- range $key, $value := .envVars }}
   {{ $key }}={{ $value -}}
 {{ end }}
+
+If HTTPS proxy setting cannot be configured for the application, try using
+"{{.endpointURL}}" as the AWS endpoint URL.
 `))
 
 	// awsProxyCommandTemplate is the message that gets printed to a user when
 	// a command is executed after the AWS proxy is started.
 	awsProxyCommandTemplate = template.Must(template.New("").Parse(
-		`Started AWS proxy on {{.envVars.HTTPS_PROXY}}.
+		`Started AWS proxy on {{.address}}. And the AWS endpoint URL is {{.endpointURL}}.
 
 The following environment variables are set for the command:
 {{- range $key, $value := .envVars }}
