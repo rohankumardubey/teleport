@@ -239,13 +239,23 @@ func hasLocalUserRole(checker services.AccessChecker) bool {
 	return ok
 }
 
-// CreateSessionTracker creates a tracker resource for an active session.
-func (a *ServerWithRoles) CreateSessionTracker(ctx context.Context, req *proto.CreateSessionTrackerRequest) (types.SessionTracker, error) {
+// UpsertSessionTracker upserts a tracker resource for an active session.
+func (a *ServerWithRoles) UpsertSessionTracker(ctx context.Context, tracker types.SessionTracker) error {
 	if !a.hasBuiltinRole(string(types.RoleKube)) && !a.hasBuiltinRole(string(types.RoleNode)) && !a.hasBuiltinRole(string(types.RoleProxy)) {
-		return nil, trace.AccessDenied("this request can be only executed by a node, proxy or kube service")
+		return trace.AccessDenied("this request can be only executed by a node, proxy or kube service")
 	}
 
-	return a.authServer.CreateSessionTracker(ctx, req)
+	// Don't allow sessions that require moderation without the enterprise feature enabled.
+	for _, policySet := range tracker.GetHostPolicySets() {
+		if len(policySet.RequireSessionJoin) != 0 {
+			if !modules.GetModules().Features().ModeratedSessions {
+				return trace.AccessDenied("this Teleport cluster is not licensed for moderated sessions, please contact the cluster administrator")
+			}
+		}
+	}
+
+	err := a.authServer.UpsertSessionTracker(ctx, tracker)
+	return trace.Wrap(err)
 }
 
 // GetSessionTracker returns the current state of a session tracker for an active session.

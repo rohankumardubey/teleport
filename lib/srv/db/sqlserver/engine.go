@@ -93,6 +93,14 @@ func (e *Engine) HandleConnection(ctx context.Context, sessionCtx *common.Sessio
 	}
 	defer serverConn.Close()
 
+	// Create a session tracker so that other services
+	// can track the session's lifetime.
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	if err := sessionCtx.CreateTracker(ctx, e.EngineConfig); err != nil {
+		return trace.Wrap(err)
+	}
+
 	// Pass all flags returned by server during login back to the client.
 	err = protocol.WriteStreamResponse(e.clientConn, serverFlags)
 	if err != nil {
