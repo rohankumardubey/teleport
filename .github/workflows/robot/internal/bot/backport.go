@@ -35,7 +35,8 @@ import (
 	"github.com/gravitational/trace"
 )
 
-// TODO(russjones): Validate user controlled input.
+// Backport will create backport Pull Requests (if requested) when a Pull
+// Request is merged.
 func (b *Bot) Backport(ctx context.Context) error {
 	if !b.c.Review.IsInternal(b.c.Environment.Author) {
 		return trace.BadParameter("automatic backports are only supported for internal contributors")
