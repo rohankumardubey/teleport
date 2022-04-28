@@ -117,11 +117,7 @@ func (b *Bot) Backport(ctx context.Context) error {
 			Failed: failed,
 			Rows:   rows,
 		})
-	if err != nil {
-		return trace.Wrap(err)
-	}
-
-	return nil
+	return trace.Wrap(err)
 }
 
 // findBranches looks through the labels attached to a Pull Request for all the
@@ -205,11 +201,7 @@ func (b *Bot) updatePullRequest(ctx context.Context, organization string, reposi
 		repository,
 		number,
 		buf.String())
-	if err != nil {
-		return trace.Wrap(err)
-	}
-
-	return nil
+	return trace.Wrap(err)
 }
 
 // git will execute the "git" program on disk.
