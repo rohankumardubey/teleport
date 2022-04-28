@@ -121,6 +121,15 @@ type PullRequest struct {
 	Number int
 	// State is the state of the submitted review.
 	State string
+	// UnsafeBase is the base of the branch.
+	//
+	// UnsafeBase can be attacker controlled and should not be used in any
+	// security sensitive context. For example, don't use it when crafting a URL
+	// to send a request to or an access decision. See the following link for
+	// more details:
+	//
+	// https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#understanding-the-risk-of-script-injections
+	UnsafeBase Branch
 	// UnsafeHead is the name head of the branch.
 	//
 	// UnsafeHead can be attacker controlled and should not be used in any
@@ -129,7 +138,7 @@ type PullRequest struct {
 	// more details:
 	//
 	// https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#understanding-the-risk-of-script-injections
-	UnsafeHead string
+	UnsafeHead Branch
 	// UnsafeTitle is the title of the Pull Request.
 	//
 	// UnsafeTitle can be attacker controlled and should not be used in any
@@ -159,6 +168,11 @@ type PullRequest struct {
 	UnsafeLabels []string
 	// Fork determines if the pull request is from a fork.
 	Fork bool
+}
+
+type Branch struct {
+	Ref string
+	SHA string
 }
 
 // ListReviewers returns a list of reviewers that have yet to submit a review.
@@ -208,11 +222,18 @@ func (c *Client) GetPullRequest(ctx context.Context, organization string, reposi
 	}
 
 	return PullRequest{
-		Author:       pull.GetUser().GetLogin(),
-		Repository:   repository,
-		Number:       pull.GetNumber(),
-		State:        pull.GetState(),
-		UnsafeHead:   pull.GetHead().GetRef(),
+		Author:     pull.GetUser().GetLogin(),
+		Repository: repository,
+		Number:     pull.GetNumber(),
+		State:      pull.GetState(),
+		UnsafeBase: Branch{
+			Ref: pull.GetBase().GetRef(),
+			SHA: pull.GetBase().GetSHA(),
+		},
+		UnsafeHead: Branch{
+			Ref: pull.GetHead().GetRef(),
+			SHA: pull.GetHead().GetSHA(),
+		},
 		UnsafeTitle:  pull.GetTitle(),
 		UnsafeBody:   pull.GetBody(),
 		UnsafeLabels: labels,
@@ -247,11 +268,18 @@ func (c *Client) ListPullRequests(ctx context.Context, organization string, repo
 			}
 
 			pulls = append(pulls, PullRequest{
-				Author:       pull.GetUser().GetLogin(),
-				Repository:   repository,
-				Number:       pull.GetNumber(),
-				State:        pull.GetState(),
-				UnsafeHead:   pull.GetHead().GetRef(),
+				Author:     pull.GetUser().GetLogin(),
+				Repository: repository,
+				Number:     pull.GetNumber(),
+				State:      pull.GetState(),
+				UnsafeBase: Branch{
+					Ref: pull.GetBase().GetRef(),
+					SHA: pull.GetBase().GetSHA(),
+				},
+				UnsafeHead: Branch{
+					Ref: pull.GetHead().GetRef(),
+					SHA: pull.GetHead().GetSHA(),
+				},
 				UnsafeTitle:  pull.GetTitle(),
 				UnsafeBody:   pull.GetBody(),
 				UnsafeLabels: labels,
