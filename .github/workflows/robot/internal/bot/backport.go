@@ -106,6 +106,8 @@ func (b *Bot) Backport(ctx context.Context) error {
 		rows = append(rows, r)
 	}
 
+	// Leave a comment on the Pull Request with a table that outlines the
+	// requested backports and outcome.
 	err = b.updatePullRequest(ctx,
 		b.c.Environment.Organization,
 		b.c.Environment.Repository,
@@ -210,6 +212,7 @@ func (b *Bot) updatePullRequest(ctx context.Context, organization string, reposi
 	return nil
 }
 
+// git will execute the "git" program on disk.
 func git(args ...string) error {
 	cmd := exec.Command("git", args...)
 	out, err := cmd.CombinedOutput()
@@ -219,6 +222,8 @@ func git(args ...string) error {
 	return nil
 }
 
+// data is injected into the template to render outcome of all backport
+// attempts.
 type data struct {
 	// Author of the Pull Request. Used to @author on GitHub so they get a
 	// notification.
@@ -231,6 +236,7 @@ type data struct {
 	Rows []row
 }
 
+// row represents a single backport attempt.
 type row struct {
 	// Branch is the name of the backport branch.
 	Branch string
@@ -239,6 +245,8 @@ type row struct {
 	Link *url.URL
 }
 
+// table is a template that is written to the origin GitHub Pull Request with
+// the outcome of the backports.
 const table = `
 {{if .Failed}}
 @{{.Author}} Some backports failed, see table below.
