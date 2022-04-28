@@ -64,9 +64,6 @@ type Client interface {
 
 	// CreatePullRequest will create a Pull Request.
 	CreatePullRequest(ctx context.Context, organization string, repository string, title string, head string, base string, body string) (int, error)
-
-	// ListCommits will list all the commits in a Pull Request.
-	ListCommits(ctx context.Context, organization string, repository string, number int) ([]string, error)
 }
 
 // Config contains configuration for the bot.

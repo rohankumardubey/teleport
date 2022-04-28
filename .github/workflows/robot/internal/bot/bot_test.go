@@ -144,7 +144,3 @@ func (f *fakeGithub) CreateComment(ctx context.Context, organization string, rep
 func (f *fakeGithub) CreatePullRequest(ctx context.Context, organization string, repository string, title string, head string, base string, body string) (int, error) {
 	return 0, nil
 }
-
-func (f *fakeGithub) ListCommits(ctx context.Context, organization string, repository string, number int) ([]string, error) {
-	return nil, nil
-}

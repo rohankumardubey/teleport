@@ -488,35 +488,6 @@ func (c *Client) CreatePullRequest(ctx context.Context, organization string, rep
 	return pull.GetNumber(), nil
 }
 
-func (c *Client) ListCommits(ctx context.Context, organization string, repository string, number int) ([]string, error) {
-	var commits []string
-
-	opts := &go_github.ListOptions{
-		Page:    0,
-		PerPage: perPage,
-	}
-	for {
-		page, resp, err := c.client.PullRequests.ListCommits(ctx,
-			organization,
-			repository,
-			number,
-			opts)
-		if err != nil {
-			return nil, trace.Wrap(err)
-		}
-
-		for _, commit := range page {
-			commits = append(commits, commit.GetSHA())
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
-	}
-	return commits, nil
-}
-
 const (
 	// perPage is the number of items per page to request.
 	perPage = 100
