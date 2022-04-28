@@ -170,8 +170,11 @@ type PullRequest struct {
 	Fork bool
 }
 
+// Branch is a git Branch.
 type Branch struct {
+	// Ref is a human readable name branch name.
 	Ref string
+	// SHA is the SHA1 hash of the commit.
 	SHA string
 }
 
